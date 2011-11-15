@@ -72,15 +72,18 @@
 
 			return { values: values, promises: deferreds };
 		},
-		assertSome: function(expected, promisesOrValues, howMany) {
+		assertSome: function(expected, promisesOrValues, howMany, howManyExpected) {
 			var dohd = new doh.Deferred();
 
 			if (arguments.length < 3) {
 				howMany = promisesOrValues.length
 			}
+			if (arguments.length < 4) {
+				howManyExpected = howMany
+			}
 
 			when.some(promisesOrValues, howMany,
-				getArrayAssertion(dohd, expected, Math.min(expected.length, howMany)),
+				getArrayAssertion(dohd, expected, Math.min(expected.length, howManyExpected)),
 				doh.rejecter(dohd)
 			);
 

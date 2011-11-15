@@ -16,10 +16,12 @@
             deferN = async.deferN;
             assertSome = async.assertSome;
 
-            function testSome(n, howMany) {
+            function testSome(n, howMany, howManyExpected) {
                 var fixture = deferN(n);
 
-                return assertSome(fixture.values, fixture.promises, howMany);
+                if (arguments.length < 3) howManyExpected = howMany;
+
+                return assertSome(fixture.values, fixture.promises, howMany, howManyExpected);
             }
 
             doh.register('when.some', [
@@ -30,7 +32,15 @@
                 function testSomeResolvesZeroWithValues() {
                     var values = [1, "foo", new Date()];
                     return assertSome(values, values, 0);
-				},
+                },
+                function testSomeResolvesNegativeWithValues() {
+                    var values = [1, "foo", new Date()];
+                    return assertSome(values, values, -1, 2);
+                },
+                function testSomeResolvesFractionalWithValues() {
+                    var values = [1, "foo", new Date()];
+                    return assertSome(values, values, 0.5, 2);
+                },
                 function testSomeResolvesAllWithValues() {
                     var values = [1, "foo", new Date()];
                     return assertSome(values, values);
@@ -40,6 +50,12 @@
                 },
                 function testSomeResolvesZeroWithPromises() {
                     return testSome(10, 0);
+                },
+                function testSomeResolvesNegativeWithPromises() {
+                    return testSome(10, -1, 9);
+                },
+                function testSomeResolvesFractionalWithPromises() {
+                    return testSome(10, 0.5, 5);
                 },
                 function testSomeResolvesAllWithPromises() {
                     return testSome(10, 10);

@@ -382,11 +382,14 @@ define([], function() {
      * have resolved. The resolution value of the returned promise will be an array of
      * length howMany containing the resolutions values of the triggering promisesOrValues.
      *
+     * To resolve the full array except for some, provide a negative howMany. For a
+     * percentage of the array, provide a float less then one.
+     *
      * @memberOf when
      *
      * @param promisesOrValues {Array} array of anything, may contain a mix
      *      of {@link Promise}s and values
-     * @param howMany
+     * @param howMany {Number} number of resolved promisses to expect.
      * @param [callback]
      * @param [errback]
      * @param [progressHandler]
@@ -396,7 +399,12 @@ define([], function() {
     function some(promisesOrValues, howMany, callback, errback, progressHandler) {
         var toResolve, results, ret, deferred, resolver, rejecter, handleProgress;
 
-        toResolve = Math.max(0, Math.min(howMany, promisesOrValues.length));
+        toResolve = (function(){
+            var normalizedHowMany =
+                howMany < 0 ? promisesOrValues.length + howMany :
+                howMany < 1 ? Math.ceil(promisesOrValues.length * howMany) : howMany;
+            return Math.max(0, Math.min(normalizedHowMany, promisesOrValues.length));
+        })();
         results = [];
         deferred = defer();
         ret = (callback || errback || progressHandler)
